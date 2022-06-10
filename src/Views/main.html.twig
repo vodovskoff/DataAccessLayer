@@ -8,12 +8,13 @@
     <p>Пользователь, которого вы искали: {{ SearchedLoginById.login }}</p>
 {% endif %}
 {% if isMessageSearched and SearchedMessageById %}
-    <li>{{ SearchedMessageById.date}}: {{SearchedMessageById.text}} ({{SearchedMessageById.from}})</li>{% endif %}
+    <li>{{ SearchedMessageById.date}}: {{SearchedMessageById.text}} ({{SearchedMessageById.from}})</li>
+{% endif %}
 {% if not logged %}
     <form action="/login" method="POST">
-    <input placeholder="Логин" name="loginName">
-    <input placeholder="Пароль" name="password">
-    <input type="submit" value="Войти под этим логином">
+    	<input placeholder="Логин" name="loginName">
+    	<input placeholder="Пароль" name="password">
+    	<input type="submit" value="Войти под этим логином">
     </form>
     <form action="/getUserById" method="POST">
         <input placeholder="ID" name="UserID">
@@ -24,9 +25,9 @@
         <input type="submit" value="Найти сообщение по ID">
     </form>
     <form action="/registration" method="POST">
-    <input placeholder="Логин" name="loginName">
-    <input placeholder="Пароль" name="password">
-    <input type="submit" value="Зарегистрироваться">
+    	<input placeholder="Логин" name="loginName">
+    	<input placeholder="Пароль" name="password">
+    	<input type="submit" value="Зарегистрироваться">
     </form>
 {% else %}
     <h1>Вы {{loginName}}</h1>
