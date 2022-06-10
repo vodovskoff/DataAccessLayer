@@ -2,6 +2,8 @@
 
 namespace MyControllers;
 
+use Models\Message;
+use Models\MessageRepository;
 use Models\User;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -30,30 +32,35 @@ class MainController{
     }
 
     private function readSQL(){
-        $messages = array();
-
-        try {
-            $dbh = new PDO('mysql:host=localhost;dbname=forum', 'root', 'root');
-            $sql = 'SELECT * from messages';
-            $stmt = $dbh->prepare($sql);
-            $stmt->execute();
-            $results = $stmt->fetchAll();
-            foreach($results as $result){
-                $message=[
-                'text'=>$result['message'],
-                'date'=>$result['date'],
-                'from'=>$result['author']
-                ];
-                array_push($messages, $message);
-            }
-            $dbh = null;
-        } catch (PDOException $e) {
-            print "Error!: " . $e->getMessage() . "<br/>";
-            die();
+        $messagesRep = new MessageRepository();
+        $messagesObjects = $messagesRep->All();
+        $arr = array();
+        foreach ($messagesObjects as $messagesObject){
+            $message=[
+                'text'=>$messagesObject->getMessage(),
+                'date'=>$messagesObject->getDate(),
+                'from'=>$messagesObject->getAuthor()
+            ];
+            array_push($arr, $message);
         }
-        return $messages;
+        return($arr);
     }
-    
+
+    private function readMessagesByAuthor($Author){
+        $messagesRep = new MessageRepository();
+        $messagesObjects = $messagesRep->getByAuthor($Author);
+        $arr = array();
+        foreach ($messagesObjects as $messagesObject){
+            $message=[
+                'text'=>$messagesObject->getMessage(),
+                'date'=>$messagesObject->getDate(),
+                'from'=>$messagesObject->getAuthor()
+            ];
+            array_push($arr, $message);
+        }
+        return($arr);
+    }
+
     function showIndex(){
 
         $loader = new FilesystemLoader(dirname(__DIR__, 2).'/src/Views/');
@@ -68,7 +75,8 @@ class MainController{
         echo $template->render(['logged' => isset($_COOKIE['loginName']), 
                                 'loginName'=>$_COOKIE['loginName'],
                                 'users'=>$User->AllUsers(),
-                                'messages'=>$this->readSQL()
+                                'messages'=>$this->readSQL(),
+                                'myMessages'=>$this->readMessagesByAuthor($_COOKIE['loginName'])
                                 ]);
     }
 
@@ -93,22 +101,9 @@ class MainController{
     }
 
     function send($message_text, $author){
-        try {
-            $dbh = new PDO('mysql:host=localhost;dbname=forum', 'root', 'root');
-            $sql = 'INSERT INTO `messages` (`id`, `date`, `author`, `message`) VALUES (NULL, :date, :author, :message);
-';
-            $stmt = $dbh->prepare($sql);
-
-            $stmt->bindParam(':date', date("Y-m-d H:i:s"), PDO::PARAM_STR);
-            $stmt->bindParam(':author', $author, PDO::PARAM_STR);
-            $stmt->bindParam(':message', $message_text, PDO::PARAM_STR);
-            $stmt->execute();
-
-            $dbh = null;
-        } catch (PDOException $e) {
-            print "Error!: " . $e->getMessage() . "<br/>";
-            die();
-        }
+        $message = new Message(date("Y-m-d H:i:s"), $author, $message_text, null);
+        $mr = new MessageRepository();
+        $mr->add($message);
         header('Location: '.self::SITE_URL);
     }
 
@@ -125,5 +120,41 @@ class MainController{
         $User->setLogin($login);
         $User->delete();
         $this->logout();
+    }
+
+    function deleteAllMessages($login){
+        $mr = new MessageRepository();
+        $mr->deleteAllByLoginName($login);
+        header('Location: '.self::SITE_URL);
+    }
+
+    function getMessageById($id){
+        $mr = new MessageRepository();
+        $loader = new FilesystemLoader(dirname(__DIR__, 2).'/src/Views/');
+        $twig = new Environment($loader);
+        $template = $twig->load('main.html.twig');
+
+        $logger = new Logger('main');
+        $logger->pushHandler(new StreamHandler(dirname(__DIR__, 2) . '/logs/app.log', Logger::INFO));
+
+        $User = new User();
+        $message = null;
+
+        if($mr->getById($id)!=null){
+            $message=[
+                'text'=>$mr->getById($id)->getMessage(),
+                'date'=>$mr->getById($id)->getDate(),
+                'from'=>$mr->getById($id)->getAuthor()
+            ];
+        }
+
+
+        echo $template->render(['logged' => isset($_COOKIE['loginName']),
+            'loginName'=>$_COOKIE['loginName'],
+            'users'=>$User->AllUsers(),
+            'messages'=>$this->readSQL(),
+            'SearchedMessageById'=>$message,
+            'isMessageSearched'=>true
+        ]);
     }
 }

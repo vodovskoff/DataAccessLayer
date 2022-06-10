@@ -7,6 +7,8 @@
 {% if isLoginSearched %}
     <p>Пользователь, которого вы искали: {{ SearchedLoginById.login }}</p>
 {% endif %}
+{% if isMessageSearched %}
+    <li>{{ SearchedMessageById.date}}: {{SearchedMessageById.text}} ({{SearchedMessageById.from}})</li>{% endif %}
 {% if not logged %}
     <form action="/login" method="POST">
     <input placeholder="Логин" name="loginName">
@@ -17,6 +19,10 @@
         <input placeholder="ID" name="UserID">
         <input type="submit" value="Найти юзера по ID">
     </form>
+    <form action="/getMessageById" method="POST">
+        <input placeholder="ID" name="MessageID">
+        <input type="submit" value="Найти сообщение по ID">
+    </form>
     <form action="/registration" method="POST">
     <input placeholder="Логин" name="loginName">
     <input placeholder="Пароль" name="password">
@@ -24,19 +30,27 @@
     </form>
 {% else %}
     <h1>Вы {{loginName}}</h1>
+    <label>Только ваши сообщения:</label>
+    {% for message in myMessages %}
+        <li>{{ message.date}}: {{message.text}} ({{message.from}})</li>
+    {% endfor %}
     <form action="/logout" method="POST">
-    <input type="submit" value="Выйти">
+        <input type="submit" value="Выйти">
     </form>
     <form action="/send" method="POST">
-    <input placeholder="Сообщение" name="message">
-    <input type="submit" value="Отправить">
+        <input placeholder="Сообщение" name="message">
+        <input type="submit" value="Отправить">
     </form>
     <form action="/delete" method="POST">
         <input type="hidden" value="{{ loginName }}" placeholder="Логин" name="loginName">
         <input type="submit" value="Удалить мой аккаунт">
     </form>
+    <form action="/deleteAllMessages" method="POST">
+        <input type="hidden" value="{{ loginName }}" placeholder="Логин" name="loginName">
+        <input type="submit" value="Удалить все мои сообщения">
+    </form>
 {% endif %}
-<label>Сообщения:</label>
+<label>Все сообщения:</label>
 {% for message in messages %}
         <li>{{ message.date}}: {{message.text}} ({{message.from}})</li>
 {% endfor %}

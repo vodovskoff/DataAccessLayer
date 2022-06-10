@@ -25,9 +25,14 @@ class User
         $stmt->bindValue(':id', $ID);
         $stmt->execute();
         $result=$stmt->fetchAll();
-        $newUser = new User();
-        $newUser->setLogin($result[0]['userName']);
-        return $newUser;
+        if (count($result)>0){
+            $newUser = new User();
+            $newUser->setLogin($result[0]['userName']);
+            return $newUser;
+        } else{
+            return null;
+        }
+
     }
 
     public function AllUsers(){

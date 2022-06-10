@@ -42,6 +42,16 @@ class Routes {
                 $mc->delete($_POST['loginName']);
                 break;
             }
+        case '/deleteAllMessages':
+            {
+                $mc->deleteAllMessages($_POST['loginName']);
+                break;
+            }
+        case '/getMessageById':
+            {
+                $mc->getMessageById($_POST['MessageID']);
+                break;
+            }
         default:
             {
                 $mc->showIndex();
