@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+{% if isLoginSearched %}
+    <p>Пользователь, которого вы искали: {{ SearchedLoginById.login }}</p>
+{% endif %}
+{% if not logged %}
+    <form action="/login" method="POST">
+    <input placeholder="Логин" name="loginName">
+    <input placeholder="Пароль" name="password">
+    <input type="submit" value="Войти под этим логином">
+    </form>
+    <form action="/getUserById" method="POST">
+        <input placeholder="ID" name="UserID">
+        <input type="submit" value="Найти юзера по ID">
+    </form>
+    <form action="/registration" method="POST">
+    <input placeholder="Логин" name="loginName">
+    <input placeholder="Пароль" name="password">
+    <input type="submit" value="Зарегистрироваться">
+    </form>
+{% else %}
+    <h1>Вы {{loginName}}</h1>
+    <form action="/logout" method="POST">
+    <input type="submit" value="Выйти">
+    </form>
+    <form action="/send" method="POST">
+    <input placeholder="Сообщение" name="message">
+    <input type="submit" value="Отправить">
+    </form>
+    <form action="/delete" method="POST">
+        <input type="hidden" value="{{ loginName }}" placeholder="Логин" name="loginName">
+        <input type="submit" value="Удалить мой аккаунт">
+    </form>
+{% endif %}
+<label>Сообщения:</label>
+{% for message in messages %}
+        <li>{{ message.date}}: {{message.text}} ({{message.from}})</li>
+{% endfor %}
+<label>Уже существующие пользователи:</label>
+{% for user in users %}
+    <li>{{ user.login}}</li>
+{% endfor %}
+</body>
+</html>

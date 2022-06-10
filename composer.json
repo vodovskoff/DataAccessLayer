@@ -1,0 +1,14 @@
+{
+    "name": "root/real_composer",
+    "autoload": {
+        "psr-4": {
+            "Etc\\": "src/Etc/",
+            "Models\\": "src/Models/",
+            "MyControllers\\": "src/MyControllers/"
+        }
+    },
+    "require": {
+        "twig/twig": "^3.0",
+        "monolog/monolog": "^2.6"
+    }
+}
