@@ -4,10 +4,10 @@
 	<title></title>
 </head>
 <body>
-{% if isLoginSearched %}
+{% if isLoginSearched and SearchedLoginById %}
     <p>Пользователь, которого вы искали: {{ SearchedLoginById.login }}</p>
 {% endif %}
-{% if isMessageSearched %}
+{% if isMessageSearched and SearchedMessageById %}
     <li>{{ SearchedMessageById.date}}: {{SearchedMessageById.text}} ({{SearchedMessageById.from}})</li>{% endif %}
 {% if not logged %}
     <form action="/login" method="POST">
